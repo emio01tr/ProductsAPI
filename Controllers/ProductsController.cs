@@ -16,7 +16,7 @@ namespace ProductsAPI.Controllers
         {
             _context = context;
         }
-        [HttpGet]
+        [HttpGet("Get-AllProducts")]
         public async Task<IActionResult> GetProducts()
         {
             var products = await _context.Products.Select(x => ProductToDto(x)).ToListAsync();
@@ -36,25 +36,31 @@ namespace ProductsAPI.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.Select(x => ProductToDto(x)).FirstOrDefaultAsync(x => x.id == id);
+            var productEntity = await _context.Products.FirstOrDefaultAsync(x => x.id == id);
 
-            if (product == null)
+            if (productEntity == null)
             {
                 return NotFound();
             }
+            var ProductDto = ProductToDto(productEntity);
 
-            return Ok(product);
+            return Ok(ProductDto);
         }
 
-        [HttpPost]
+        [HttpPost("Create-Product")]
         public async Task<IActionResult> CreateProduct(Product model)
         {
+            if(model.ProductName == "")
+            {
+                return BadRequest("Urunun ismi bos gecilemez, lutfen yanlis parametreyi duzeltin.");
+            }
+
             await _context.Products.AddAsync(model);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetProduct), new { id = model.id }, model);
         }
 
-        [HttpPut]
+        [HttpPut("Update-Product")]
         public async Task<IActionResult> UpdateProduct(Product model)
         {
             var product = await _context.Products.Select(x => ProductToDto(x)).FirstOrDefaultAsync(x => x.id == model.id);
@@ -78,7 +84,7 @@ namespace ProductsAPI.Controllers
             return Ok(product);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete-ProductBy-{id}")]
         public async Task<IActionResult> DeleteProduct(int? id)
         {
             if (id == null)
