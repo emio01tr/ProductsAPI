@@ -1,0 +1,15 @@
+# Build klasörleri
+bin/
+obj/
+
+# Visual Studio dosyaları
+.vs/
+*.user
+*.suo
+
+
+# Ayar dosyaları
+appsettings.Development.json
+
+# Diğer
+node_modules/

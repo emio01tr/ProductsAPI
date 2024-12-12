@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProductsAPI.Dto;
@@ -16,7 +17,9 @@ namespace ProductsAPI.Controllers
         {
             _context = context;
         }
+        [Authorize]
         [HttpGet("Get-AllProducts")]
+        
         public async Task<IActionResult> GetProducts()
         {
             var products = await _context.Products.Select(x => ProductToDto(x)).ToListAsync();
@@ -29,6 +32,7 @@ namespace ProductsAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetProduct(int? id)
         {
             if (id == null)
@@ -40,7 +44,7 @@ namespace ProductsAPI.Controllers
 
             if (productEntity == null)
             {
-                return NotFound();
+                return NotFound(new {message = $"{id} Id'li ürün bulunamadý."});
             }
             var ProductDto = ProductToDto(productEntity);
 
@@ -48,6 +52,7 @@ namespace ProductsAPI.Controllers
         }
 
         [HttpPost("Create-Product")]
+        [Authorize]
         public async Task<IActionResult> CreateProduct(Product model)
         {
             if(model.ProductName == "")
@@ -61,6 +66,7 @@ namespace ProductsAPI.Controllers
         }
 
         [HttpPut("Update-Product")]
+        [Authorize]
         public async Task<IActionResult> UpdateProduct(Product model)
         {
             var product = await _context.Products.Select(x => ProductToDto(x)).FirstOrDefaultAsync(x => x.id == model.id);
@@ -85,6 +91,7 @@ namespace ProductsAPI.Controllers
         }
 
         [HttpDelete("Delete-ProductBy-{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProduct(int? id)
         {
             if (id == null)
